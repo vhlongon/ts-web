@@ -16,4 +16,24 @@ describe('User modal', () => {
     expect(user.get('name')).toBe('newName');
     expect(user.get('age')).toBe(40);
   });
+
+  test('it register and triggers events', () => {
+    const user = User({ name: 'name', age: 20 });
+    const onChange = jest.fn();
+    const onClick = jest.fn();
+
+    user.on('change', onChange);
+    user.on('change', onChange);
+    user.on('click', onClick);
+
+    expect(user.events).toEqual({
+      change: [onChange, onChange],
+      click: [onClick],
+    });
+
+    user.trigger('change');
+    expect(onChange).toHaveBeenCalledTimes(2);
+    user.trigger('click');
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
 });
