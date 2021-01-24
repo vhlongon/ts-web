@@ -2,7 +2,9 @@
   "name": "ts-web",
   "version": "1.0.0",
   "main": "index.js",
-  "dependencies": {},
+  "dependencies": {
+    "axios": "^0.21.1"
+  },
   "scripts": {
     "dev": "npm run serve & npm start",
     "start": "parcel ./index.html",

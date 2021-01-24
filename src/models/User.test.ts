@@ -1,4 +1,7 @@
 import { User } from './User';
+import axios from 'axios';
+
+jest.mock('axios');
 
 describe('User modal', () => {
   test('it creates user with name and age', () => {
@@ -35,5 +38,27 @@ describe('User modal', () => {
     expect(onChange).toHaveBeenCalledTimes(2);
     user.trigger('click');
     expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  test('when successful requrest it returns fetched data', async () => {
+    const data = { name: 'name', age: 20, id: 1 };
+    const user = User(data);
+    axios.get = jest
+      .fn()
+      .mockImplementationOnce(() => Promise.resolve({ data }));
+
+    await expect(user.fetch()).resolves.toEqual(data);
+  });
+
+  test('when not successful requrest it returns error', async () => {
+    const data = { name: 'name', age: 20, id: 1 };
+    const user = User(data);
+    const errorMessage = 'oops';
+
+    axios.get = jest
+      .fn()
+      .mockImplementationOnce(() => Promise.reject(new Error(errorMessage)));
+
+    await expect(user.fetch()).rejects.toThrow(errorMessage);
   });
 });

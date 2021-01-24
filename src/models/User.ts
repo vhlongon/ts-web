@@ -1,4 +1,7 @@
+import axios, { AxiosResponse } from 'axios';
+
 interface UserProps {
+  id?: number;
   name?: string;
   age?: number;
 }
@@ -7,6 +10,7 @@ type UserProp = number | string;
 // an object with key as event name and the value will be a callback
 type Events = { [key: string]: Callback[] };
 
+const baseURL = 'http://localhost:3000';
 export const User = (data: UserProps) => ({
   events: <Events>{},
   get(propName: string): UserProp {
@@ -30,5 +34,13 @@ export const User = (data: UserProps) => ({
     handlers.forEach((callback: Callback) => {
       callback();
     });
+  },
+  async fetch(): Promise<void> {
+    const response: AxiosResponse = await axios.get(
+      `${baseURL}/users/${this.get('id')}`
+    );
+    this.set(response.data);
+
+    return response.data;
   },
 });
