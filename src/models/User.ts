@@ -6,14 +6,14 @@ interface UserProps {
   age?: number;
 }
 type Callback = () => void;
-type UserProp = number | string;
+type UserProp = number | string | undefined;
 // an object with key as event name and the value will be a callback
 type Events = { [key: string]: Callback[] };
 
 const baseURL = 'http://localhost:3000';
 export const User = (data: UserProps) => ({
   events: <Events>{},
-  get(propName: string): UserProp {
+  get(propName: keyof UserProps): UserProp {
     return data[propName];
   },
   set(update: UserProps): void {
