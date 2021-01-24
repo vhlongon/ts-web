@@ -11,36 +11,55 @@ type UserProp = number | string | undefined;
 type Events = { [key: string]: Callback[] };
 
 const baseURL = 'http://localhost:3000';
-export const User = (data: UserProps) => ({
-  events: <Events>{},
-  get(propName: keyof UserProps): UserProp {
-    return data[propName];
-  },
-  set(update: UserProps): void {
-    Object.assign(data, update);
-  },
-  on(eventName: string, callback: Callback): void {
-    const handlers = this.events[eventName] || []; // Callback[] or undefined
+export const User = (data: UserProps) => {
+  const state = { data, events: <Events>{} };
+  const get = (propName: keyof UserProps): UserProp => state.data[propName];
+  const set = (update: UserProps): void => {
+    Object.assign(state.data, update);
+  };
 
-    this.events[eventName] = [...handlers, callback];
-  },
-  trigger(eventName: string): void {
-    const handlers = this.events[eventName] || [];
+  return {
+    get,
+    set,
+    on(eventName: string, callback: Callback): void {
+      const handlers = state.events[eventName] || []; // Callback[] or undefined
 
-    if (!handlers.length) {
-      return;
-    }
+      state.events[eventName] = [...handlers, callback];
+    },
+    trigger(eventName: string): void {
+      const handlers = state.events[eventName] || [];
 
-    handlers.forEach((callback: Callback) => {
-      callback();
-    });
-  },
-  async fetch(): Promise<void> {
-    const response: AxiosResponse = await axios.get(
-      `${baseURL}/users/${this.get('id')}`
-    );
-    this.set(response.data);
+      if (!handlers.length) {
+        return;
+      }
 
-    return response.data;
-  },
-});
+      handlers.forEach((callback: Callback) => {
+        callback();
+      });
+    },
+    async fetch(): Promise<void> {
+      const id = get('id');
+      const response: AxiosResponse = await axios.get(`${baseURL}/users/${id}`);
+      set(response.data);
+
+      return response.data;
+    },
+    async save(): Promise<void> {
+      const id = get('id');
+
+      if (id) {
+        const response: AxiosResponse = await axios.put(
+          `${baseURL}/users/${id}`,
+          state.data
+        );
+        return response.data;
+      } else {
+        const response: AxiosResponse = await axios.post(
+          `${baseURL}/users`,
+          state.data
+        );
+        return response.data;
+      }
+    },
+  };
+};
