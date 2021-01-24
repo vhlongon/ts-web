@@ -4,7 +4,7 @@ interface UserProps {
 }
 type Callback = () => void;
 type UserProp = number | string;
-// on object with key as event name and the value will be a callback
+// an object with key as event name and the value will be a callback
 type Events = { [key: string]: Callback[] };
 
 export const User = (data: UserProps) => ({
@@ -21,9 +21,9 @@ export const User = (data: UserProps) => ({
     this.events[eventName] = [...handlers, callback];
   },
   trigger(eventName: string): void {
-    const handlers = this.events[eventName];
+    const handlers = this.events[eventName] || [];
 
-    if (!handlers || handlers.length === 0) {
+    if (!handlers.length) {
       return;
     }
 
