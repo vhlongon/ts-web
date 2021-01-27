@@ -20,14 +20,14 @@ export const User = (data: UserProps) => {
     get,
     set,
 
-    async fetch(): Promise<void> {
+    fetch: async (): Promise<void> => {
       const id = get('id');
       const response: AxiosResponse = await axios.get(`${baseURL}/users/${id}`);
       set(response.data);
 
       return response.data;
     },
-    async save(): Promise<void> {
+    save: async (): Promise<void> => {
       const id = get('id');
 
       // if there is alrady an object with the id yet we update its value
