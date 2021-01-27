@@ -1,3 +1,4 @@
+import { Attributes } from './Attributes';
 import axios, { AxiosResponse } from 'axios';
 import { Eventing } from './Eventing';
 
@@ -6,16 +7,12 @@ interface UserProps {
   name?: string;
   age?: number;
 }
-type UserProp = number | string | undefined;
 
 const baseURL = 'http://localhost:3000';
 export const User = (data: UserProps) => {
   const state = { data };
   const { on, trigger } = Eventing();
-  const get = (propName: keyof UserProps): UserProp => state.data[propName];
-  const set = (update: UserProps): void => {
-    Object.assign(state.data, update);
-  };
+  const { get, set } = Attributes<UserProps>(state.data);
 
   return {
     on,
