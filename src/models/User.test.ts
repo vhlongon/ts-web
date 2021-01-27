@@ -4,21 +4,6 @@ import axios from 'axios';
 jest.mock('axios');
 
 describe('User modal', () => {
-  test('it register and triggers events', () => {
-    const user = User({ name: 'name', age: 20 });
-    const onChange = jest.fn();
-    const onClick = jest.fn();
-
-    user.on('change', onChange);
-    user.on('change', onChange);
-    user.on('click', onClick);
-
-    user.trigger('change');
-    expect(onChange).toHaveBeenCalledTimes(2);
-    user.trigger('click');
-    expect(onClick).toHaveBeenCalledTimes(1);
-  });
-
   test('when successful request it returns fetched data', async () => {
     const data = { name: 'name', age: 20, id: 1 };
     const user = User(data);
