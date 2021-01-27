@@ -6,12 +6,12 @@ export const Eventing = () => {
   const state = { events: <Events>{} };
 
   return {
-    on(eventName: string, callback: Callback): void {
+    on: (eventName: string, callback: Callback): void => {
       const handlers = state.events[eventName] || []; // Callback[] or undefined
 
       state.events[eventName] = [...handlers, callback];
     },
-    trigger(eventName: string): void {
+    trigger: (eventName: string): void => {
       const handlers = state.events[eventName] || [];
 
       if (!handlers.length) {
