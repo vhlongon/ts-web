@@ -4,87 +4,115 @@ import axios from 'axios';
 jest.mock('axios');
 
 describe('User modal', () => {
-  test('when successful request it returns fetched data', async () => {
-    const data = { name: 'name', age: 20, id: 1 };
-    const user = User(data);
-    axios.get = jest
-      .fn()
-      .mockImplementationOnce(() => Promise.resolve({ data }));
+  describe('fetch', () => {
+    test('when successful request it call on change with fetched data', async () => {
+      const data = { name: 'name', age: 20, id: 1 };
+      const user = User(data);
+      axios.get = jest
+        .fn()
+        .mockImplementationOnce(() => Promise.resolve({ data }));
+      const onChange = jest.fn();
+      user.on('change', onChange);
 
-    await expect(user.fetch()).resolves.toEqual(data);
-    expect(axios.get).toHaveBeenCalledWith('http://localhost:3000/users/1');
+      await user.fetch();
+      expect(onChange).toHaveBeenCalledWith(data);
+      expect(axios.get).toHaveBeenCalledWith('http://localhost:3000/users/1');
+    });
+
+    test('when not successful request it calls on error with error', async () => {
+      const data = { name: 'name', age: 20, id: 1 };
+      const user = User(data);
+      const error = new Error('oops');
+      const onError = jest.fn();
+
+      user.on('error', onError);
+
+      axios.get = jest.fn().mockImplementationOnce(() => Promise.reject(error));
+
+      await user.fetch();
+      expect(onError).toHaveBeenCalledWith(error);
+      expect(axios.get).toHaveBeenCalledWith('http://localhost:3000/users/1');
+    });
   });
 
-  test('when not successful request it returns error', async () => {
-    const data = { name: 'name', age: 20, id: 1 };
-    const user = User(data);
-    const errorMessage = 'oops';
+  describe('save', () => {
+    describe('when there is an existing user', () => {
+      test('...and successful request it updates user data and calls on save with new data', async () => {
+        const data = { name: 'name', age: 20, id: 1 };
+        const user = User(data);
+        axios.put = jest
+          .fn()
+          .mockImplementationOnce(() => Promise.resolve({ data }));
+        const onSave = jest.fn();
+        user.on('save', onSave);
 
-    axios.get = jest
-      .fn()
-      .mockImplementationOnce(() => Promise.reject(new Error(errorMessage)));
+        await user.save();
+        expect(onSave).toHaveBeenCalledWith(data);
+        expect(axios.put).toHaveBeenCalledWith(
+          'http://localhost:3000/users/1',
+          data
+        );
+      });
 
-    await expect(user.fetch()).rejects.toThrow(errorMessage);
-    expect(axios.get).toHaveBeenCalledWith('http://localhost:3000/users/1');
-  });
+      test('...and not successful request it calls on error with error', async () => {
+        const data = { name: 'name', age: 20, id: 1 };
+        const user = User(data);
+        const error = new Error('oops');
+        const onError = jest.fn();
 
-  test('when there is already a user and successful request it can update user data', async () => {
-    const data = { name: 'name', age: 20, id: 1 };
-    const user = User(data);
-    axios.put = jest
-      .fn()
-      .mockImplementationOnce(() => Promise.resolve({ data }));
+        user.on('error', onError);
 
-    await expect(user.save()).resolves.toEqual(data);
-    expect(axios.put).toHaveBeenCalledWith(
-      'http://localhost:3000/users/1',
-      data
-    );
-  });
+        axios.put = jest
+          .fn()
+          .mockImplementationOnce(() => Promise.reject(error));
 
-  test('when there is not a user and successful request it can create and save a new user', async () => {
-    const data = { name: 'name', age: 20 };
-    const user = User(data);
-    axios.post = jest
-      .fn()
-      .mockImplementationOnce(() => Promise.resolve({ data }));
+        await user.save();
+        expect(onError).toHaveBeenCalledWith(error);
+        expect(axios.put).toHaveBeenCalledWith(
+          'http://localhost:3000/users/1',
+          data
+        );
+      });
+    });
 
-    await expect(user.save()).resolves.toEqual(data);
-    expect(axios.post).toHaveBeenCalledWith(
-      'http://localhost:3000/users',
-      data
-    );
-  });
+    describe('when there is not an existing user', () => {
+      test('...and successful request it creates and saves a new user, call on save with new data', async () => {
+        const data = { name: 'name', age: 20 };
+        const user = User(data);
+        axios.post = jest
+          .fn()
+          .mockImplementationOnce(() => Promise.resolve({ data }));
 
-  test('when not successful request and trying to update a existing user it returns error', async () => {
-    const data = { name: 'name', age: 20, id: 1 };
-    const user = User(data);
-    const errorMessage = 'oops';
+        const onSave = jest.fn();
+        user.on('save', onSave);
 
-    axios.put = jest
-      .fn()
-      .mockImplementationOnce(() => Promise.reject(new Error(errorMessage)));
+        await user.save();
+        expect(onSave).toHaveBeenCalledWith(data);
+        expect(axios.post).toHaveBeenCalledWith(
+          'http://localhost:3000/users',
+          data
+        );
+      });
 
-    await expect(user.save()).rejects.toThrow(errorMessage);
-    expect(axios.put).toHaveBeenCalledWith(
-      'http://localhost:3000/users/1',
-      data
-    );
-  });
+      test('...and not successful request it calls on error with error', async () => {
+        const data = { name: 'name', age: 20 };
+        const user = User(data);
+        const error = new Error('oops');
+        const onError = jest.fn();
 
-  test('when not successful request and trying to create a new user it returns error', async () => {
-    const data = { name: 'name', age: 20 };
-    const user = User(data);
-    const errorMessage = 'oops';
+        user.on('error', onError);
 
-    axios.post = jest
-      .fn()
-      .mockImplementationOnce(() => Promise.reject(new Error(errorMessage)));
+        axios.post = jest
+          .fn()
+          .mockImplementationOnce(() => Promise.reject(error));
 
-    await expect(user.save()).rejects.toThrow(errorMessage);
-    expect(axios.post).toHaveBeenCalledWith(
-      'http://localhost:3000/users',
-      data
-    );
+        await user.save();
+        expect(onError).toHaveBeenCalledWith(error);
+        expect(axios.post).toHaveBeenCalledWith(
+          'http://localhost:3000/users',
+          data
+        );
+      });
+    });
   });
 });

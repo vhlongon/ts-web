@@ -1,49 +1,53 @@
 import { Attributes } from './Attributes';
-import axios, { AxiosResponse } from 'axios';
 import { Eventing } from './Eventing';
+import { Sync } from './Sync';
 
-interface UserProps {
+interface UserData {
   id?: number;
   name?: string;
   age?: number;
 }
 
-const baseURL = 'http://localhost:3000';
-export const User = (data: UserProps) => {
+type UserPropsPromise = Promise<UserData | void>;
+
+const baseURL = 'http://localhost:3000/users';
+export const User = (data: UserData) => {
   const state = { data };
   const { on, trigger } = Eventing();
-  const { get, set } = Attributes<UserProps>(state.data);
-
+  const sync = Sync<UserData>(baseURL);
+  const { get, set: setAttribute } = Attributes<UserData>(state.data);
+  const set = (update: UserData): void => {
+    setAttribute(update);
+    trigger('change', update);
+  };
   return {
+    data: state.data,
     on,
     trigger,
     get,
     set,
+    fetch: async (): UserPropsPromise => {
+      try {
+        const id = get('id');
 
-    fetch: async (): Promise<void> => {
-      const id = get('id');
-      const response: AxiosResponse = await axios.get(`${baseURL}/users/${id}`);
-      set(response.data);
+        if (!id) {
+          const error = new Error('Cannot fetch without an id');
+          trigger('error', error);
+          return;
+        }
 
-      return response.data;
+        const response = await sync.fetch(id);
+        set(response.data);
+      } catch (e) {
+        trigger('error', e);
+      }
     },
-    save: async (): Promise<void> => {
-      const id = get('id');
-
-      // if there is alrady an object with the id yet we update its value
-      if (id) {
-        const response: AxiosResponse = await axios.put(
-          `${baseURL}/users/${id}`,
-          state.data
-        );
-        return response.data;
-        // otherwise we create a new object with the data provided
-      } else {
-        const response: AxiosResponse = await axios.post(
-          `${baseURL}/users`,
-          state.data
-        );
-        return response.data;
+    save: async (): UserPropsPromise => {
+      try {
+        const response = await sync.save(state.data);
+        trigger('save', response.data);
+      } catch (e) {
+        trigger('error', e);
       }
     },
   };
