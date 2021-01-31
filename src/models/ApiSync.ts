@@ -4,7 +4,7 @@ interface WithId {
   id?: number;
 }
 
-export const Sync = <T extends WithId>(baseURL: string) => ({
+export const ApiSync = <T extends WithId>(baseURL: string) => ({
   fetch: async (id: number): Promise<AxiosResponse> => {
     return await axios.get(`${baseURL}/${id}`);
   },

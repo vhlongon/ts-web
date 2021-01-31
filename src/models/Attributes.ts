@@ -3,4 +3,5 @@ export const Attributes = <T>(data: T) => ({
   set: (update: T): void => {
     Object.assign(data, update);
   },
+  getAll: (): T => data,
 });

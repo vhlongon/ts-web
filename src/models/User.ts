@@ -1,6 +1,7 @@
+import { Model, ModelInterface } from './Model';
 import { Attributes } from './Attributes';
 import { Eventing } from './Eventing';
-import { Sync } from './Sync';
+import { ApiSync } from './ApiSync';
 
 interface UserData {
   id?: number;
@@ -8,47 +9,14 @@ interface UserData {
   age?: number;
 }
 
-type UserPropsPromise = Promise<void>;
+interface UserInterface extends ModelInterface<UserData> {}
 
 const baseURL = 'http://localhost:3000/users';
-export const User = (data: UserData) => {
-  const state = data;
-  const { on, trigger } = Eventing();
-  const sync = Sync<UserData>(baseURL);
-  const { get, set: setAttribute } = Attributes<UserData>(state);
-  const set = (update: UserData): void => {
-    setAttribute(update);
-    trigger('change', update);
-  };
-  return {
-    data: state,
-    on,
-    trigger,
-    get,
-    set,
-    fetch: async (): UserPropsPromise => {
-      try {
-        const id = get('id');
+export const User = (initialData: UserData): UserInterface => {
+  const attributes = Attributes<UserData>(initialData);
+  const events = Eventing();
+  const sync = ApiSync<UserData>(baseURL);
+  const model = Model<UserData>(attributes, events, sync);
 
-        if (!id) {
-          const error = new Error('Cannot fetch without an id');
-          trigger('error', error);
-          return;
-        }
-
-        const response = await sync.fetch(id);
-        set(response.data);
-      } catch (e) {
-        trigger('error', e);
-      }
-    },
-    save: async (): UserPropsPromise => {
-      try {
-        const response = await sync.save(state);
-        trigger('save', response.data);
-      } catch (e) {
-        trigger('error', e);
-      }
-    },
-  };
+  return model;
 };

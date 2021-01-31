@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Sync } from './Sync';
+import { ApiSync } from './ApiSync';
 
 jest.mock('axios');
 
@@ -13,7 +13,7 @@ describe('User modal', () => {
   describe('fetch', () => {
     test('when successful request it returns fetched data', async () => {
       const baseUrl = 'baseUrl';
-      const sync = Sync<Record>(baseUrl);
+      const sync = ApiSync<Record>(baseUrl);
       const data = { name: 'name', age: 20, id: 1 };
       const id = 1;
       axios.get = jest.fn().mockImplementationOnce(() => Promise.resolve(data));
@@ -24,7 +24,7 @@ describe('User modal', () => {
 
     test('when not successful request it returns error', async () => {
       const baseUrl = 'baseUrl';
-      const sync = Sync<Record>(baseUrl);
+      const sync = ApiSync<Record>(baseUrl);
       const errorMessage = 'oops';
       const id = 1;
 
@@ -41,7 +41,7 @@ describe('User modal', () => {
     describe('when there is matching id record', () => {
       test('...and successful request it can update record', async () => {
         const baseUrl = 'baseUrl';
-        const user = Sync<Record>(baseUrl);
+        const user = ApiSync<Record>(baseUrl);
         const data = { name: 'name', age: 20, id: 1 };
         axios.put = jest
           .fn()
@@ -53,7 +53,7 @@ describe('User modal', () => {
 
       test('...and not successful request it returns error', async () => {
         const baseUrl = 'baseUrl';
-        const sync = Sync<Record>(baseUrl);
+        const sync = ApiSync<Record>(baseUrl);
         const data = { name: 'name', age: 20, id: 1 };
         const errorMessage = 'oops';
 
@@ -72,7 +72,7 @@ describe('User modal', () => {
   describe('when there is not matching id record', () => {
     test('...and successful request it can create and save a new record', async () => {
       const baseUrl = 'baseUrl';
-      const sync = Sync<Record>(baseUrl);
+      const sync = ApiSync<Record>(baseUrl);
       const data = { name: 'name', age: 20 };
       axios.post = jest
         .fn()
@@ -84,7 +84,7 @@ describe('User modal', () => {
 
     test('...and not successful request it returns error', async () => {
       const baseUrl = 'baseUrl';
-      const sync = Sync<Record>(baseUrl);
+      const sync = ApiSync<Record>(baseUrl);
       const data = { name: 'name', age: 20 };
       const errorMessage = 'oops';
 
