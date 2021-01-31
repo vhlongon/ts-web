@@ -8,20 +8,20 @@ interface UserData {
   age?: number;
 }
 
-type UserPropsPromise = Promise<UserData | void>;
+type UserPropsPromise = Promise<void>;
 
 const baseURL = 'http://localhost:3000/users';
 export const User = (data: UserData) => {
-  const state = { data };
+  const state = data;
   const { on, trigger } = Eventing();
   const sync = Sync<UserData>(baseURL);
-  const { get, set: setAttribute } = Attributes<UserData>(state.data);
+  const { get, set: setAttribute } = Attributes<UserData>(state);
   const set = (update: UserData): void => {
     setAttribute(update);
     trigger('change', update);
   };
   return {
-    data: state.data,
+    data: state,
     on,
     trigger,
     get,
@@ -44,7 +44,7 @@ export const User = (data: UserData) => {
     },
     save: async (): UserPropsPromise => {
       try {
-        const response = await sync.save(state.data);
+        const response = await sync.save(state);
         trigger('save', response.data);
       } catch (e) {
         trigger('error', e);
