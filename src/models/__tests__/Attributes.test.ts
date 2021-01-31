@@ -1,4 +1,4 @@
-import { Attributes } from './Attributes';
+import { Attributes } from '../Attributes';
 
 describe('Attributes', () => {
   test('it create a model', () => {

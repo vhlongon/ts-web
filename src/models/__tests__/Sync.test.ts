@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ApiSync } from './ApiSync';
+import { ApiSync } from '../ApiSync';
 
 jest.mock('axios');
 
@@ -9,7 +9,7 @@ interface Record {
   id?: number;
 }
 
-describe('User modal', () => {
+describe('Sync', () => {
   describe('fetch', () => {
     test('when successful request it returns fetched data', async () => {
       const baseUrl = 'baseUrl';

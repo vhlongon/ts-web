@@ -1,10 +1,17 @@
 import axios, { AxiosResponse } from 'axios';
 
-interface WithId {
+export interface ApiSyncInterface<T> {
+  fetch(id: number): Promise<AxiosResponse>;
+  save(data: T): Promise<AxiosResponse>;
+}
+
+export interface WithIdInterface {
   id?: number;
 }
 
-export const ApiSync = <T extends WithId>(baseURL: string) => ({
+export const ApiSync = <T extends WithIdInterface>(
+  baseURL: string
+): ApiSyncInterface<T> => ({
   fetch: async (id: number): Promise<AxiosResponse> => {
     return await axios.get(`${baseURL}/${id}`);
   },

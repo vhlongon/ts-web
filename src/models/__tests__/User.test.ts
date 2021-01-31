@@ -1,9 +1,9 @@
-import { User } from './User';
+import { User } from '../User';
 import axios from 'axios';
 
 jest.mock('axios');
 
-describe('User modal', () => {
+describe('User', () => {
   describe('fetch', () => {
     test('when successful request it call on change with fetched data', async () => {
       const data = { name: 'name', age: 20, id: 1 };
@@ -113,6 +113,28 @@ describe('User modal', () => {
           data
         );
       });
+    });
+  });
+
+  describe('buildCollection', () => {
+    test('creates a collection of users', async () => {
+      const users = [
+        { id: 1, name: 'user 1', age: 20 },
+        { id: 2, name: 'user 2', age: 30 },
+      ];
+      axios.get = jest
+        .fn()
+        .mockImplementationOnce(() => Promise.resolve({ data: users }));
+      const collection = User().buildCollection();
+
+      await collection.fetch();
+
+      const user1 = User(users[0]);
+      const user2 = User(users[1]);
+
+      expect(JSON.stringify(collection.models)).toEqual(
+        JSON.stringify([user1, user2])
+      );
     });
   });
 });

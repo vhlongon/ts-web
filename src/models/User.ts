@@ -1,22 +1,30 @@
+import { Collection, CollectionInterface } from './Collection';
 import { Model, ModelInterface } from './Model';
 import { Attributes } from './Attributes';
 import { Eventing } from './Eventing';
 import { ApiSync } from './ApiSync';
 
-interface UserData {
+export interface UserData {
   id?: number;
   name?: string;
   age?: number;
 }
 
-interface UserInterface extends ModelInterface<UserData> {}
+export interface UserInterface extends ModelInterface<UserData> {
+  buildCollection(): CollectionInterface<UserInterface>;
+}
 
 const baseURL = 'http://localhost:3000/users';
-export const User = (initialData: UserData): UserInterface => {
+
+const deserialize = (json: UserData): UserInterface => User(json);
+
+export const User = (initialData: UserData = {}): UserInterface => {
   const attributes = Attributes<UserData>(initialData);
   const events = Eventing();
   const sync = ApiSync<UserData>(baseURL);
   const model = Model<UserData>(attributes, events, sync);
+  const buildCollection = () =>
+    Collection<UserInterface, UserData>(baseURL, deserialize);
 
-  return model;
+  return { ...model, buildCollection };
 };

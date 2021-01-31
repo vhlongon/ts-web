@@ -1,4 +1,4 @@
-import { Eventing } from './Eventing';
+import { Eventing } from '../Eventing';
 
 describe('Eventing', () => {
   test('it register and triggers events', () => {

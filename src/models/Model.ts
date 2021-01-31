@@ -1,37 +1,19 @@
-import { AxiosResponse } from 'axios';
+import { AttributesInterface } from './Attributes';
+import { EventsInterface } from './Eventing';
+import { ApiSyncInterface, WithIdInterface } from './ApiSync';
 
-interface Attributes<T> {
-  get<K extends keyof T>(key: K): T[K];
-  getAll(): T;
-  set(update: T): void;
-}
-
-interface Sync<T> {
-  fetch(id: number): Promise<AxiosResponse>;
-  save(data: T): Promise<AxiosResponse>;
-}
-
-type ModelPromise = Promise<void>;
-
-interface Events {
-  on(eventName: string, callback: (params: unknown) => void): void;
-  trigger(eventName: string, params?: unknown): void;
-}
-
-interface WithId {
-  id?: number;
-}
-
-export interface ModelInterface<T> extends Attributes<T>, Events {
+export interface ModelInterface<T>
+  extends AttributesInterface<T>,
+    EventsInterface {
   data: T;
-  fetch(): void;
-  save(): void;
+  fetch(): Promise<void>;
+  save(): Promise<void>;
 }
 
-export const Model = <T extends WithId>(
-  attributes: Attributes<T>,
-  events: Events,
-  sync: Sync<T>
+export const Model = <T extends WithIdInterface>(
+  attributes: AttributesInterface<T>,
+  events: EventsInterface,
+  sync: ApiSyncInterface<T>
 ): ModelInterface<T> => {
   const { on, trigger } = events;
   const { get, set: setAttribute, getAll } = attributes;
@@ -46,7 +28,7 @@ export const Model = <T extends WithId>(
     trigger,
     get,
     set,
-    fetch: async (): ModelPromise => {
+    fetch: async (): Promise<void> => {
       try {
         const id = get('id');
 
@@ -62,7 +44,7 @@ export const Model = <T extends WithId>(
         trigger('error', e);
       }
     },
-    save: async (): ModelPromise => {
+    save: async (): Promise<void> => {
       try {
         const response = await sync.save(getAll());
         trigger('save', response.data);

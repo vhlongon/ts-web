@@ -1,4 +1,9 @@
-import 'regenerator-runtime/runtime';
 import { User } from './models/User';
+import 'regenerator-runtime/runtime';
 
-const user = User({ name: 'new record', age: 0 });
+const collection = User().buildCollection();
+collection.fetch();
+
+collection.on('change', () => {
+  console.log(collection);
+});

@@ -1,9 +1,14 @@
 type Callback = (params: unknown) => void;
 // an object with key as event name and the value will be a callback
-type Events = { [key: string]: Callback[] };
+export type EventsType = { [key: string]: Callback[] };
 
-export const Eventing = () => {
-  const state = { events: <Events>{} };
+export interface EventsInterface {
+  on(eventName: string, callback: (params: unknown) => void): void;
+  trigger(eventName: string, params?: unknown): void;
+}
+
+export const Eventing = (): EventsInterface => {
+  const state = { events: <EventsType>{} };
 
   return {
     on: (eventName: string, callback: Callback): void => {
