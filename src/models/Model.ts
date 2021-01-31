@@ -14,7 +14,7 @@ interface Sync<T> {
 type ModelPromise = Promise<void>;
 
 interface Events {
-  on(eventName: string, callback: () => void): void;
+  on(eventName: string, callback: (params: unknown) => void): void;
   trigger(eventName: string, params?: unknown): void;
 }
 
@@ -50,8 +50,8 @@ export const Model = <T extends WithId>(
       try {
         const id = get('id');
 
-        if (typeof id !== 'number') {
-          const error = new Error('Cannot fetch without an id');
+        if (!id || typeof id !== 'number') {
+          const error = new Error('Cannot fetch without a valid id');
           trigger('error', error);
           return;
         }
