@@ -9,7 +9,7 @@ interface Record {
   id?: number;
 }
 
-describe('Sync', () => {
+describe('ApiSync', () => {
   describe('fetch', () => {
     test('when successful request it returns fetched data', async () => {
       const baseUrl = 'baseUrl';
