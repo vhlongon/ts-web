@@ -12,6 +12,7 @@ export interface UserData {
 
 export interface UserInterface extends ModelInterface<UserData> {
   buildCollection(): CollectionInterface<UserInterface>;
+  setRandomAge(): void;
 }
 
 const baseURL = 'http://localhost:3000/users';
@@ -25,6 +26,10 @@ export const User = (initialData: UserData = {}): UserInterface => {
   const model = Model<UserData>(attributes, events, sync);
   const buildCollection = () =>
     Collection<UserInterface, UserData>(baseURL, deserialize);
+  const setRandomAge = (): void => {
+    const age = Math.round(Math.random() * 100);
+    model.set({ age });
+  };
 
-  return { ...model, buildCollection };
+  return { ...model, buildCollection, setRandomAge };
 };
