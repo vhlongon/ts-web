@@ -9,10 +9,10 @@ export const View = <T extends ModelInterface<K>, K>(
   parent: HTMLElement | null,
   model: T,
   template: () => string,
-  eventsMap: () => { [key: string]: () => void }
+  eventsMap?: () => { [key: string]: () => void }
 ) => {
   const bindEvents = (fragment: DocumentFragment): void => {
-    const events = eventsMap();
+    const events = eventsMap ? eventsMap() : {};
 
     Object.entries(events).forEach(([eventKey, eventHandler]) => {
       const [eventName, selector] = eventKey.split(':');
