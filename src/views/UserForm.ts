@@ -1,12 +1,14 @@
 import { View } from './View';
 import { UserInterface, UserData } from './../models/User';
 
-export const UserForm = (parent: HTMLElement | null, model: UserInterface) => {
+export const UserForm = (
+  parent: Element | null | undefined,
+  model: UserInterface
+) => {
   const template = (): string => `
   <div>
     <h1>User form</h1>
-    <div>USer name: ${model.data.name}</div>
-    <div>USer age: ${model.data.age}</div>
+    
     <input placeholder="${model.data.name}" />
     <button class="set-name">Change name</button>
     <button class="set-age">Set random age</button>
@@ -32,5 +34,5 @@ export const UserForm = (parent: HTMLElement | null, model: UserInterface) => {
     'click:.save-model': onSaveClick,
   });
 
-  return View<UserInterface, UserData>(parent, model, template, eventsMap);
+  return View<UserInterface, UserData>(parent, model, template, {}, eventsMap);
 };

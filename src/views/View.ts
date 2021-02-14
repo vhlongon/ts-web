@@ -6,14 +6,18 @@ import { ModelInterface } from './../models/Model';
 // the `model` arg is an instance of User
 // it is a bit unclear since K (the second generic) is used before it is defined
 export const View = <T extends ModelInterface<K>, K>(
-  parent: HTMLElement | null,
+  parent: Element | null | undefined,
   model: T,
   template: () => string,
-  eventsMap?: () => { [key: string]: () => void }
+  regions: { [key: string]: Element } = {},
+  eventsMap?: () => { [key: string]: () => void },
+  regionsMap?: () => { [key: string]: string },
+  onRender?: (regions: { [key: string]: Element }) => void
 ) => {
-  const bindEvents = (fragment: DocumentFragment): void => {
-    const events = eventsMap ? eventsMap() : {};
+  const events = eventsMap ? eventsMap() : {};
+  const regionsToMap = regionsMap ? regionsMap() : {};
 
+  const bindEvents = (fragment: DocumentFragment): void => {
     Object.entries(events).forEach(([eventKey, eventHandler]) => {
       const [eventName, selector] = eventKey.split(':');
       if (selector) {
@@ -22,6 +26,16 @@ export const View = <T extends ModelInterface<K>, K>(
             element.addEventListener(eventName, eventHandler);
           }
         });
+      }
+    });
+  };
+
+  const mapRegions = (fragment: DocumentFragment): void => {
+    Object.keys(regionsToMap).forEach((key) => {
+      const selector = regionsToMap[key];
+      const element = selector && fragment.querySelector(selector);
+      if (element) {
+        regions[key] = element;
       }
     });
   };
@@ -35,6 +49,8 @@ export const View = <T extends ModelInterface<K>, K>(
     templateElement.innerHTML = template();
     const { content } = templateElement;
     bindEvents(content);
+    mapRegions(content);
+    onRender && onRender(regions);
     parent.append(content);
   };
 
@@ -44,5 +60,5 @@ export const View = <T extends ModelInterface<K>, K>(
 
   bindModel();
 
-  return { render };
+  return { render, regions };
 };
